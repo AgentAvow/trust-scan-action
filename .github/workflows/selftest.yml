@@ -1,0 +1,17 @@
+name: self-test
+on: [push, workflow_dispatch]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        uses: ./
+        with:
+          repo: octocat/Hello-World
+          comment-on-pr: 'false'
+      - name: assert outputs
+        run: |
+          echo "grade=${{ steps.scan.outputs.grade }} score=${{ steps.scan.outputs.trust-score }} result=${{ steps.scan.outputs.scan-result }}"
+          test -n "${{ steps.scan.outputs.grade }}" || { echo "no grade output"; exit 1; }
+          test -n "${{ steps.scan.outputs.trust-score }}" || { echo "no score output"; exit 1; }

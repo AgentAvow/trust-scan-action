@@ -1,60 +1,99 @@
-# AgentGraph Trust Scan Action
+# AgentGraph Trust Scan — GitHub Action
 
-Scan your MCP server or AI agent tool for security issues in CI. Get a trust grade (A-F) with per-category sub-scores.
+[![AgentGraph](https://img.shields.io/badge/AgentGraph-trust%20scan-7c3aed)](https://agentgraph.co)
 
-## Quick Start
+Scan your MCP server or agent-tool repository for security and trust posture on
+every pull request and push — for **free**, with **no secret to configure**.
+
+This composite action calls AgentGraph's public scan API, derives a letter
+grade (A+→F) from the trust score, posts a single sticky comment on the PR with
+the grade and findings, sets step outputs you can branch on, and can optionally
+fail the build when the score drops below a threshold you choose.
+
+> Scanning uses the **unauthenticated public API** — you never need an AgentGraph
+> API key or any repository secret. The only token used is the automatically
+> provided `${{ github.token }}`, and only to post the PR comment.
+
+## What it does
+
+1. `GET https://agentgraph.co/api/v1/public/scan/{owner}/{repo}` (cached/fast).
+2. Parses `trust_score`, `scan_result`, and `findings` (critical / high / medium / total).
+3. Derives a letter grade: **A+** ≥96, **A** ≥81, **B** ≥61, **C** ≥41, **D** ≥21, else **F**.
+4. Sets outputs (`trust-score`, `grade`, `scan-result`, `badge-url`, `report-url`).
+5. On pull requests, posts/updates one sticky comment with the grade, findings,
+   a link to the full report, and the README badge snippet.
+6. If `fail-below` > 0 and the score is below it, fails the build.
+
+## Usage
 
 ```yaml
-# .github/workflows/trust-scan.yml
-name: Trust Scan
-on: [push, pull_request]
+name: AgentGraph Trust Scan
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write   # required to post the PR comment
 
 jobs:
-  scan:
+  trust-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: agentgraph-co/trust-scan-action@v1
+      - uses: agentgraph-co/agentgraph/sdk/trust-scan-action@main
         with:
-          min-score: 50  # Fail if score drops below 50
+          fail-below: 41   # optional: fail if below a C grade
 ```
 
-## Features
-
-- **Context-aware** — MCP servers get scored differently than regular libraries
-- **Per-category grades** — secret_hygiene, code_safety, data_handling, filesystem_access
-- **PR comments** — auto-posts scan results on pull requests
-- **Signed attestation** — EdDSA-signed JWS verifiable against our JWKS
-- **No account needed** — uses the public scan API (no auth required)
+Copy `examples/trust-scan.yml` into `.github/workflows/` for a ready-to-run file.
 
 ## Inputs
 
-| Input | Default | Description |
-|-------|---------|-------------|
-| `repo` | Current repo | Repository to scan (owner/repo) |
-| `min-score` | `0` | Minimum score to pass (0-100) |
-| `comment` | `true` | Post results as PR comment |
-| `badge` | `false` | Update README badge |
+| Input           | Required | Default                          | Description                                                                 |
+|-----------------|----------|----------------------------------|-----------------------------------------------------------------------------|
+| `repo`          | no       | `${{ github.repository }}`       | `owner/repo` to scan.                                                        |
+| `api-url`       | no       | `https://agentgraph.co/api/v1`   | AgentGraph API base URL.                                                     |
+| `fail-below`    | no       | `0`                              | Fail the build if the score is below this (0-100). `0` = never fail.        |
+| `comment-on-pr` | no       | `true`                           | Post/update a sticky trust-grade comment on pull requests.                  |
+| `github-token`  | no       | `${{ github.token }}`            | Token used only to post the PR comment (auto-provided; no AgentGraph key).  |
 
 ## Outputs
 
-| Output | Description |
-|--------|-------------|
-| `score` | Trust score (0-100) |
-| `grade` | Letter grade (A+/A/B/C/D/F) |
-| `tier` | Trust tier |
-| `scan-result` | clean/warnings/critical |
-| `is-mcp-server` | Whether MCP context was detected |
+| Output        | Description                                                  |
+|---------------|--------------------------------------------------------------|
+| `trust-score` | Trust score 0-100 (security scan score).                     |
+| `grade`       | Letter grade derived from the score (`A+`, `A`, `B`, `C`, `D`, `F`). |
+| `scan-result` | Scan result string (e.g. `clean`, `warnings`, `flagged`).    |
+| `badge-url`   | URL of the embeddable SVG trust badge.                       |
+| `report-url`  | URL of the human-readable trust report (`/check` page).      |
+
+### Using outputs
+
+```yaml
+      - id: scan
+        uses: agentgraph-co/agentgraph/sdk/trust-scan-action@main
+      - run: echo "Graded ${{ steps.scan.outputs.grade }} (${{ steps.scan.outputs.trust-score }}/100)"
+```
 
 ## Badge
 
-Add to your README:
+Add the live trust badge to your README (it links to the full report):
 
 ```markdown
-[![AgentGraph Trust](https://agentgraph.co/api/v1/public/scan/YOUR/REPO/badge)](https://agentgraph.co/api/v1/public/scan/YOUR/REPO)
+[![AgentGraph Trust](https://agentgraph.co/api/v1/public/scan/OWNER/REPO/badge)](https://agentgraph.co/check/OWNER/REPO)
 ```
 
-## Links
+Replace `OWNER/REPO` with your repository. The action also prints this exact
+snippet (pre-filled) in its PR comment and job summary.
 
-- [Public Scan API](https://agentgraph.co/docs/trust-gateway)
-- [MCP Tool](https://pypi.org/project/agentgraph-trust/)
-- [Trust Gateway](https://agentgraph.co/api/v1/gateway/stats)
+## Permissions
+
+The action needs `pull-requests: write` to post the sticky comment. If you set
+`comment-on-pr: false`, only `contents: read` is required. No AgentGraph secret
+is ever needed — scanning is free and uses the public API.
+
+## Learn more
+
+- Full report for any repo: `https://agentgraph.co/check/{owner}/{repo}`
+- AgentGraph: trust infrastructure for AI agents — https://agentgraph.co
