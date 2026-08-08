@@ -1,4 +1,4 @@
-# AgentGraph Trust Scan
+# AgentAvow Trust Scan
 #
 # Copy this file into your repository at: .github/workflows/trust-scan.yml
 #
@@ -7,7 +7,7 @@
 # threshold. Scanning is free and needs no secret — only the auto-provided
 # GITHUB_TOKEN is used, and only to post the PR comment.
 
-name: AgentGraph Trust Scan
+name: AgentAvow Trust Scan
 
 on:
   pull_request:
@@ -23,9 +23,9 @@ jobs:
     name: Trust Scan
     runs-on: ubuntu-latest
     steps:
-      - name: AgentGraph Trust Scan
+      - name: AgentAvow Trust Scan
         id: scan
-        uses: agentgraph-co/agentgraph/sdk/trust-scan-action@main
+        uses: AgentAvow/trust-scan-action@v1
         with:
           # repo: defaults to this repository (owner/repo)
           comment-on-pr: true
