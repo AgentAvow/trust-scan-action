@@ -1,16 +1,16 @@
-# AgentGraph Trust Scan — GitHub Action
+# AgentAvow Trust Scan — GitHub Action
 
-[![AgentGraph](https://img.shields.io/badge/AgentGraph-trust%20scan-7c3aed)](https://agentgraph.co)
+[![AgentAvow](https://img.shields.io/badge/AgentAvow-trust%20scan-7c3aed)](https://agentgraph.co)
 
 Scan your MCP server or agent-tool repository for security and trust posture on
 every pull request and push — for **free**, with **no secret to configure**.
 
-This composite action calls AgentGraph's public scan API, derives a letter
+This composite action calls AgentAvow's public scan API, derives a letter
 grade (A+→F) from the trust score, posts a single sticky comment on the PR with
 the grade and findings, sets step outputs you can branch on, and can optionally
 fail the build when the score drops below a threshold you choose.
 
-> Scanning uses the **unauthenticated public API** — you never need an AgentGraph
+> Scanning uses the **unauthenticated public API** — you never need an AgentAvow
 > API key or any repository secret. The only token used is the automatically
 > provided `${{ github.token }}`, and only to post the PR comment.
 
@@ -27,7 +27,7 @@ fail the build when the score drops below a threshold you choose.
 ## Usage
 
 ```yaml
-name: AgentGraph Trust Scan
+name: AgentAvow Trust Scan
 on:
   pull_request:
   push:
@@ -41,7 +41,7 @@ jobs:
   trust-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: agentgraph-co/agentgraph/sdk/trust-scan-action@main
+      - uses: AgentAvow/trust-scan-action@v1
         with:
           fail-below: 41   # optional: fail if below a C grade
 ```
@@ -53,10 +53,10 @@ Copy `examples/trust-scan.yml` into `.github/workflows/` for a ready-to-run file
 | Input           | Required | Default                          | Description                                                                 |
 |-----------------|----------|----------------------------------|-----------------------------------------------------------------------------|
 | `repo`          | no       | `${{ github.repository }}`       | `owner/repo` to scan.                                                        |
-| `api-url`       | no       | `https://agentgraph.co/api/v1`   | AgentGraph API base URL.                                                     |
+| `api-url`       | no       | `https://agentgraph.co/api/v1`   | AgentAvow API base URL.                                                      |
 | `fail-below`    | no       | `0`                              | Fail the build if the score is below this (0-100). `0` = never fail.        |
 | `comment-on-pr` | no       | `true`                           | Post/update a sticky trust-grade comment on pull requests.                  |
-| `github-token`  | no       | `${{ github.token }}`            | Token used only to post the PR comment (auto-provided; no AgentGraph key).  |
+| `github-token`  | no       | `${{ github.token }}`            | Token used only to post the PR comment (auto-provided; no AgentAvow key).   |
 
 ## Outputs
 
@@ -72,7 +72,7 @@ Copy `examples/trust-scan.yml` into `.github/workflows/` for a ready-to-run file
 
 ```yaml
       - id: scan
-        uses: agentgraph-co/agentgraph/sdk/trust-scan-action@main
+        uses: AgentAvow/trust-scan-action@v1
       - run: echo "Graded ${{ steps.scan.outputs.grade }} (${{ steps.scan.outputs.trust-score }}/100)"
 ```
 
@@ -81,7 +81,7 @@ Copy `examples/trust-scan.yml` into `.github/workflows/` for a ready-to-run file
 Add the live trust badge to your README (it links to the full report):
 
 ```markdown
-[![AgentGraph Trust](https://agentgraph.co/api/v1/public/scan/OWNER/REPO/badge)](https://agentgraph.co/check/OWNER/REPO)
+[![AgentAvow Trust](https://agentgraph.co/api/v1/public/scan/OWNER/REPO/badge)](https://agentgraph.co/check/OWNER/REPO)
 ```
 
 Replace `OWNER/REPO` with your repository. The action also prints this exact
@@ -90,10 +90,10 @@ snippet (pre-filled) in its PR comment and job summary.
 ## Permissions
 
 The action needs `pull-requests: write` to post the sticky comment. If you set
-`comment-on-pr: false`, only `contents: read` is required. No AgentGraph secret
+`comment-on-pr: false`, only `contents: read` is required. No AgentAvow secret
 is ever needed — scanning is free and uses the public API.
 
 ## Learn more
 
 - Full report for any repo: `https://agentgraph.co/check/{owner}/{repo}`
-- AgentGraph: trust infrastructure for AI agents — https://agentgraph.co
+- AgentAvow: trust infrastructure for AI agents — https://agentgraph.co
