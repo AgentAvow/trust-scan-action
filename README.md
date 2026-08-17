@@ -1,3 +1,5 @@
+[![AgentAvow Trust](https://agentavow.com/api/v1/public/scan/AgentAvow/trust-scan-action/badge)](https://agentavow.com/check/AgentAvow/trust-scan-action) — signed, offline-verifiable tool-safety grade
+
 # AgentAvow Trust Scan — GitHub Action
 
 [![AgentAvow](https://img.shields.io/badge/AgentAvow-trust%20scan-7c3aed)](https://agentgraph.co)
