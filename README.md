@@ -1,3 +1,9 @@
+> **Archived — superseded by [`AgentAvow/AgentAvow/github-action`](https://github.com/AgentAvow/AgentAvow/tree/main/github-action).**
+> Use `uses: AgentAvow/AgentAvow/github-action@main` with `min_score`, `fail_on_findings`, `comment_on_pr` and
+> `fail_on_behavioral`. The maintained action reports the 0–100 trust score and tier (no letter grade), the
+> sandbox line, and the behavioral gate. This repository is kept read-only so existing `@v1` workflows keep
+> running unchanged; it receives no further updates.
+
 [![AgentAvow Trust](https://agentavow.com/api/v1/public/scan/AgentAvow/trust-scan-action/badge)](https://agentavow.com/check/AgentAvow/trust-scan-action) — signed, offline-verifiable tool-safety grade
 
 # AgentAvow Trust Scan — GitHub Action
